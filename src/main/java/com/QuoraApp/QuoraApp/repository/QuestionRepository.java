@@ -1,10 +1,14 @@
 package com.QuoraApp.QuoraApp.repository;
 
 import com.QuoraApp.QuoraApp.model.Question;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 @Repository
 public interface QuestionRepository extends ReactiveMongoRepository<Question, String> {
@@ -15,4 +19,7 @@ public interface QuestionRepository extends ReactiveMongoRepository<Question, St
     // flux and mono acts like publisher
 
 //    Mono<Long> countByAuthorId(String authorId);
+
+    @Query("{}")
+    Flux<Question> findAllBy(Pageable pageable);
 }

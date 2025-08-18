@@ -6,9 +6,11 @@ import com.QuoraApp.QuoraApp.dto.QuestionResponseDto;
 import com.QuoraApp.QuoraApp.model.Question;
 import com.QuoraApp.QuoraApp.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 
@@ -59,15 +61,13 @@ public class QuestionService implements IQuestionService{
 
     @Override
     public Flux<QuestionResponseDto> getQuestions(int offset, int limit) {
-        return questionRepository.findAll()
-                .skip(offset)
-                .take(limit)
+        return questionRepository.findAllBy(PageRequest.of(offset, limit))
                 .map(QuestionAdapter::toQuestionResponseDto)
-                .doOnComplete(() -> {
-                    System.out.println("All questions retrieved successfully.");
-                })
                 .doOnError(error -> {
                     System.err.println("Error retrieving questions: " + error.getMessage());
+                })
+                .doOnComplete(() -> {
+                    System.out.println("All questions retrieved successfully.");
                 });
     }
 }
