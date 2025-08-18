@@ -7,6 +7,7 @@ import com.QuoraApp.QuoraApp.model.Question;
 import com.QuoraApp.QuoraApp.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -42,5 +43,31 @@ public class QuestionService implements IQuestionService{
                     System.err.println("Error creating question: " + error.getMessage());
                 });
 
+    }
+
+    @Override
+    public Mono<QuestionResponseDto> getQuestionById(String id) {
+        return questionRepository.findById(id)
+                .map(QuestionAdapter::toQuestionResponseDto)
+                .doOnSuccess(q -> {
+                    System.out.println("Question retrieved successfully: " + q.getTitle());
+                })
+                .doOnError(error -> {
+                    System.err.println("Error retrieving question: " + error.getMessage());
+                });
+    }
+
+    @Override
+    public Flux<QuestionResponseDto> getQuestions(int offset, int limit) {
+        return questionRepository.findAll()
+                .skip(offset)
+                .take(limit)
+                .map(QuestionAdapter::toQuestionResponseDto)
+                .doOnComplete(() -> {
+                    System.out.println("All questions retrieved successfully.");
+                })
+                .doOnError(error -> {
+                    System.err.println("Error retrieving questions: " + error.getMessage());
+                });
     }
 }

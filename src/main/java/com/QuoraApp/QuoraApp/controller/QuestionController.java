@@ -5,9 +5,8 @@ import com.QuoraApp.QuoraApp.dto.QuestionResponseDto;
 import com.QuoraApp.QuoraApp.service.IQuestionService;
 import com.QuoraApp.QuoraApp.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -24,5 +23,16 @@ public class QuestionController {
     @PostMapping
     public Mono<QuestionResponseDto> createQuestion(QuestionDto questionDto) {
         return questionService.createQuestion(questionDto);
+    }
+
+    @GetMapping("/{id}")
+    public Mono<QuestionResponseDto> getQuestion(@PathVariable String id) {
+        return questionService.getQuestionById(id);
+    }
+
+    @GetMapping
+    public Flux<QuestionResponseDto> getQuestions(@RequestParam(defaultValue = "0") int offset,
+                                                  @RequestParam(defaultValue = "10") int limit){
+        return questionService.getQuestions(offset, limit);
     }
 }
