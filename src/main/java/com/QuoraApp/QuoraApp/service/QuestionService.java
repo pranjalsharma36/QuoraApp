@@ -31,6 +31,7 @@ public class QuestionService implements IQuestionService{
                 .content(questionDto.getContent())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
+                .viewCount(0)
                 .build();
 
         return questionRepository.save(question)

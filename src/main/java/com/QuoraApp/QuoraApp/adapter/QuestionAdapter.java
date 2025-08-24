@@ -11,6 +11,7 @@ public class QuestionAdapter {
                 .title(question.getTitle())
                 .content(question.getContent())
                 .createdAt(question.getCreatedAt())
+                .viewCount(question.getViewCount())
                 .build();
     }
 }

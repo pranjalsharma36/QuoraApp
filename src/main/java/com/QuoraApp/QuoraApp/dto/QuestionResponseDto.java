@@ -28,4 +28,6 @@ public class QuestionResponseDto {
     private String content;
 
     private LocalDateTime createdAt;
+
+    private int viewCount;
 }
