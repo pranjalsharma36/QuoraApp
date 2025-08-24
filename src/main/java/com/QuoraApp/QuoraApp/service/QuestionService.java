@@ -3,26 +3,26 @@ package com.QuoraApp.QuoraApp.service;
 import com.QuoraApp.QuoraApp.adapter.QuestionAdapter;
 import com.QuoraApp.QuoraApp.dto.QuestionDto;
 import com.QuoraApp.QuoraApp.dto.QuestionResponseDto;
+import com.QuoraApp.QuoraApp.enums.TargetType;
+import com.QuoraApp.QuoraApp.event.ViewCountEvent;
 import com.QuoraApp.QuoraApp.model.Question;
+import com.QuoraApp.QuoraApp.producer.TargetEventProducer;
 import com.QuoraApp.QuoraApp.repository.QuestionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class QuestionService implements IQuestionService{
 
     private final QuestionRepository questionRepository;
+    private final TargetEventProducer targetEventProducer;
 
-    @Autowired
-    public QuestionService(QuestionRepository questionRepository) {
-        this.questionRepository = questionRepository;
-    }
 
     public Mono<QuestionResponseDto> createQuestion(QuestionDto questionDto) {
 
@@ -49,14 +49,19 @@ public class QuestionService implements IQuestionService{
 
     @Override
     public Mono<QuestionResponseDto> getQuestionById(String id) {
-        return questionRepository.findById(id)
+        Mono<QuestionResponseDto> questionResponseDtoMono =  questionRepository.findById(id)
                 .map(QuestionAdapter::toQuestionResponseDto)
                 .doOnSuccess(q -> {
                     System.out.println("Question retrieved successfully: " + q.getTitle());
+                    // Produce a Kafka event for view count increment
+                    ViewCountEvent viewCountEvent = new ViewCountEvent(id, TargetType.QUESTION, LocalDateTime.now(), 1);
+                    targetEventProducer.sendMessage(viewCountEvent, id);
                 })
                 .doOnError(error -> {
                     System.err.println("Error retrieving question: " + error.getMessage());
                 });
+
+        return questionResponseDtoMono;
     }
 
     @Override
