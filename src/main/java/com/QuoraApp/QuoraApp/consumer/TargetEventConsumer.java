@@ -22,7 +22,7 @@ public class TargetEventConsumer {
         // Update the view count in the database
         questionRepository.findById(targetId)
                 .flatMap(question -> {
-                    question.setViewCount(question.getViewCount() + incrementBy);
+                    question.setViewCount(question.getViewCount() == null ? 0 : question.getViewCount() + incrementBy);
                     return questionRepository.save(question);
                 })
                 .subscribe(updatedQuestion ->

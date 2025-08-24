@@ -38,5 +38,5 @@ public class Question {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    private int viewCount;
+    private Integer viewCount;
 }
